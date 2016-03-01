@@ -18,101 +18,48 @@ class DeviceListenerWrapper {
   std::set<child_feature_t> child_features_;
 
  public:
-  void addChildFeature(child_feature_t feature) {
-    child_features_.insert(feature);
-  }
-  void removeChildFeature(child_feature_t feature) {
-    child_features_.erase(feature);
-  }
+  void addChildFeature(child_feature_t feature);
+  void removeChildFeature(child_feature_t feature);
 
   virtual void onPair(myo::Myo* myo, uint64_t timestamp,
-                      myo::FirmwareVersion firmware_version) {
-    for (auto feature : child_features_) {
-      feature->onPair(myo, timestamp, firmware_version);
-    }
-  }
-  virtual void onUnpair(myo::Myo* myo, uint64_t timestamp) {
-    for (auto feature : child_features_) {
-      feature->onUnpair(myo, timestamp);
-    }
-  }
+                      myo::FirmwareVersion firmware_version);
+
+  virtual void onUnpair(myo::Myo* myo, uint64_t timestamp);
+
   virtual void onConnect(myo::Myo* myo, uint64_t timestamp,
-                         myo::FirmwareVersion firmware_version) {
-    for (auto feature : child_features_) {
-      feature->onConnect(myo, timestamp, firmware_version);
-    }
-  }
-  virtual void onDisconnect(myo::Myo* myo, uint64_t timestamp) {
-    for (auto feature : child_features_) {
-      feature->onDisconnect(myo, timestamp);
-    }
-  }
+                         myo::FirmwareVersion firmware_version);
+
+  virtual void onDisconnect(myo::Myo* myo, uint64_t timestamp);
+
   virtual void onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm,
-                         myo::XDirection x_direction) {
-    for (auto feature : child_features_) {
-      feature->onArmSync(myo, timestamp, arm, x_direction);
-    }
-  }
-  virtual void onArmUnsync(myo::Myo* myo, uint64_t timestamp) {
-    for (auto feature : child_features_) {
-      feature->onArmUnsync(myo, timestamp);
-    }
-  }
-  virtual void onUnlock(myo::Myo* myo, uint64_t timestamp) {
-    for (auto feature : child_features_) {
-      feature->onUnlock(myo, timestamp);
-    }
-  }
-  virtual void onLock(myo::Myo* myo, uint64_t timestamp) {
-    for (auto feature : child_features_) {
-      feature->onLock(myo, timestamp);
-    }
-  }
+                         myo::XDirection x_direction);
+
+  virtual void onArmUnsync(myo::Myo* myo, uint64_t timestamp);
+
+  virtual void onUnlock(myo::Myo* myo, uint64_t timestamp);
+
+  virtual void onLock(myo::Myo* myo, uint64_t timestamp);
+
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                      const std::shared_ptr<core::Pose>& pose) {
-    for (auto feature : child_features_) {
-      feature->onPose(myo, timestamp, pose);
-    }
-  }
+                      const std::shared_ptr<core::Pose>& pose);
+
   virtual void onGesture(myo::Myo* myo, uint64_t timestamp,
-                         const std::shared_ptr<core::Gesture>& gesture) {
-    for (auto feature : child_features_) {
-      feature->onGesture(myo, timestamp, gesture);
-    }
-  }
+                         const std::shared_ptr<core::Gesture>& gesture);
+
   virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,
-                                 const myo::Quaternion<float>& rotation) {
-    for (auto feature : child_features_) {
-      feature->onOrientationData(myo, timestamp, rotation);
-    }
-  }
+                                 const myo::Quaternion<float>& rotation);
+
   virtual void onAccelerometerData(myo::Myo* myo, uint64_t timestamp,
-                                   const myo::Vector3<float>& acceleration) {
-    for (auto feature : child_features_) {
-      feature->onAccelerometerData(myo, timestamp, acceleration);
-    }
-  }
+                                   const myo::Vector3<float>& acceleration);
+
   virtual void onGyroscopeData(myo::Myo* myo, uint64_t timestamp,
-                               const myo::Vector3<float>& gyro) {
-    for (auto feature : child_features_) {
-      feature->onGyroscopeData(myo, timestamp, gyro);
-    }
-  }
-  virtual void onRssi(myo::Myo* myo, uint64_t timestamp, int8_t rssi) {
-    for (auto feature : child_features_) {
-      feature->onRssi(myo, timestamp, rssi);
-    }
-  }
+                               const myo::Vector3<float>& gyro);
+
+  virtual void onRssi(myo::Myo* myo, uint64_t timestamp, int8_t rssi);
+
   virtual void onEmgData(myo::Myo* myo, uint64_t timestamp,
-                         const int8_t* emg) {
-    for (auto feature : child_features_) {
-      feature->onEmgData(myo, timestamp, emg);
-    }
-  }
-  virtual void onPeriodic(myo::Myo* myo) {
-    for (auto feature : child_features_) {
-      feature->onPeriodic(myo);
-    }
-  }
+                         const int8_t* emg);
+
+  virtual void onPeriodic(myo::Myo* myo);
 };
 }
