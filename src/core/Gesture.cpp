@@ -1,6 +1,7 @@
 #include "Gesture.h"
 
 namespace core {
+
 Gesture::Gesture(Type type)
     : type_(type), associated_pose_(new Pose(Pose::rest)) {}
 
