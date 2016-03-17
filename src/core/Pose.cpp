@@ -1,5 +1,6 @@
 #include "Pose.h"
 
+namespace core {
 Pose::Pose(Type type) : type_(type) {}
 
 Pose::Pose(const myo::Pose& pose) {
