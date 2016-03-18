@@ -2,6 +2,8 @@
 
 #include <string>
 #include <iostream>
+#include <memory>
+#include <myo/myo.hpp>
 
 namespace core {
 class Pose {
@@ -20,3 +22,4 @@ class Pose {
  private:
   Type type_;
 };
+}
