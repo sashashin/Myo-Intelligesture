@@ -6,6 +6,7 @@
 #pragma once
 
 #include <set>
+#include <memory>
 #include <myo/myo.hpp>
 
 #include "Pose.h"
@@ -41,10 +42,10 @@ class DeviceListenerWrapper {
   virtual void onLock(myo::Myo* myo, uint64_t timestamp);
 
   virtual void onPose(myo::Myo* myo, uint64_t timestamp,
-                      const std::shared_ptr<core::Pose>& pose);
+                      const std::shared_ptr<Pose>& pose);
 
   virtual void onGesture(myo::Myo* myo, uint64_t timestamp,
-                         const std::shared_ptr<core::Gesture>& gesture);
+                         const std::shared_ptr<Gesture>& gesture);
 
   virtual void onOrientationData(myo::Myo* myo, uint64_t timestamp,
                                  const myo::Quaternion<float>& rotation);

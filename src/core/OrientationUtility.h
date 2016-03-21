@@ -5,9 +5,13 @@
 
 #pragma once
 
+/* for MSVC++ */
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <algorithm>
 #include <functional>
+
+#include <myo/myo.hpp>
 
 namespace core {
 namespace OrientationUtility {

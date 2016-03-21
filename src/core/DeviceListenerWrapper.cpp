@@ -61,14 +61,14 @@ void DeviceListenerWrapper::onLock(myo::Myo* myo, uint64_t timestamp) {
 }
 
 void DeviceListenerWrapper::onPose(myo::Myo* myo, uint64_t timestamp,
-                    const std::shared_ptr<core::Pose>& pose) {
+                    const std::shared_ptr<Pose>& pose) {
   for (auto feature : child_features_) {
     feature->onPose(myo, timestamp, pose);
   }
 }
 
 void DeviceListenerWrapper::onGesture(myo::Myo* myo, uint64_t timestamp,
-                       const std::shared_ptr<core::Gesture>& gesture) {
+                       const std::shared_ptr<Gesture>& gesture) {
   for (auto feature : child_features_) {
     feature->onGesture(myo, timestamp, gesture);
   }
