@@ -4,6 +4,3 @@
 [submodule "lib/NDRecognizer"]
 	path = lib/NDRecognizer
 	url = https://github.com/VoidingWarranties/N-D-1-Recognizer.git
-[submodule "lib/MyoSimulator"]
-	path = lib/MyoSimulator
-	url = https://github.com/VoidingWarranties/MyoSimulator.git
