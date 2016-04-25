@@ -194,7 +194,7 @@ void PrintEvents::onPose(myo::Myo* myo, uint64_t timestamp,
   ss << "onPose -";
   ss << PRINT_NAME_AND_VAR(myo);
   ss << PRINT_NAME_AND_VAR(timestamp);
-  ss << PRINT_NAME_AND_VAR(*pose);
+  ss << PRINT_NAME_AND_VAR(pose->toString());
   ss << "\n";
   out_ += ss.str();
 }
@@ -205,7 +205,7 @@ void PrintEvents::onGesture(myo::Myo* myo, uint64_t timestamp,
   ss << "onGesture -";
   ss << PRINT_NAME_AND_VAR(myo);
   ss << PRINT_NAME_AND_VAR(timestamp);
-  ss << PRINT_NAME_AND_VAR(*gesture);
+  ss << PRINT_NAME_AND_VAR(gesture->toString());
   ss << "\n";
   out_ += ss.str();
 }
