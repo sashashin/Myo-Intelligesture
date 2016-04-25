@@ -1,5 +1,8 @@
 #include <myo/myo.hpp>
 #include <string>
+#include <array>
+#include <memory>
+#include <map>
 
 #include "../src/core/DeviceListenerWrapper.h"
 #include "../src/features/RootFeature.h"
@@ -7,11 +10,11 @@
 #include "../src/features/filters/ExponentialMovingAverage.h"
 #include "../src/features/filters/MovingAverage.h"
 
-#include "../lib/MyoSimulator/src/Hub.h"
-#include "../lib/MyoSimulator/src/EventTypes.h"
-#include "../lib/MyoSimulator/src/EventPlayer.h"
+#include "hub.h"
+#include "event_types.h"
+#include "event_player_hub.h"
 
-#include "PrintEventsFeature.h"
+// #include "PrintEventsFeature.h"
 
 // Test without MyoSimulator.
 void testRootFeature();
@@ -20,10 +23,10 @@ void testExponentialMovingAverage();
 void testMovingAverage();
 
 // Test using MyoSimulator.
-void myoSimTestRootFeature(MyoSim::Hub& hub);
-void myoSimTestDebounce(MyoSim::Hub& hub);
-void myoSimTestExponentialMovingAverage(MyoSim::Hub& hub);
-void myoSimTestMovingAverage(MyoSim::Hub& hub);
+void myoSimTestRootFeature(myosim::Hub& hub);
+void myoSimTestDebounce(myosim::Hub& hub);
+void myoSimTestExponentialMovingAverage(myosim::Hub& hub);
+void myoSimTestMovingAverage(myosim::Hub& hub);
 
 int main() {
   // Test without MyoSimulator.
@@ -32,12 +35,14 @@ int main() {
   testExponentialMovingAverage();
   testMovingAverage();
 
+#if 0
   // Test using MyoSimulator.
-  MyoSim::Hub hub("com.voidingwarranties.myo-intelligesture-tests");
+  myosim::Hub hub("com.voidingwarranties.myo-intelligesture-tests");
   myoSimTestRootFeature(hub);
   myoSimTestDebounce(hub);
   myoSimTestExponentialMovingAverage(hub);
   myoSimTestMovingAverage(hub);
+#endif
 
   return 0;
 }
@@ -49,7 +54,7 @@ int main() {
 void testRootFeature() {
   features::RootFeature root_feature;
   std::string str;
-  PrintEvents print_events(root_feature, str);
+  // PrintEvents print_events(root_feature, str);
 
   uint64_t timestamp = 0;
   root_feature.onPair(nullptr, timestamp++, myo::FirmwareVersion{0, 1, 2, 3});
@@ -66,7 +71,7 @@ void testRootFeature() {
   root_feature.onAccelerometerData(nullptr, timestamp++, myo::Vector3<float>(0.f, 1.f, 2.f));
   root_feature.onGyroscopeData(nullptr, timestamp++, myo::Vector3<float>(0.f, 1.f, 2.f));
   root_feature.onRssi(nullptr, timestamp++, 123);
-  std::array<int8_t, 8> emg_data{{0, 1, 2, 3, 4, 5, 6, 7}};
+  std::array<int8_t, 8> emg_data = {0, 1, 2, 3, 4, 5, 6, 7};
   root_feature.onEmgData(nullptr, timestamp++, emg_data.data());
   root_feature.onPeriodic(nullptr);
 
@@ -95,7 +100,7 @@ void testDebounce() {
       features::RootFeature root_feature;
       features::filters::Debounce debounce(root_feature, debounce_ms);
       std::string str;
-      PrintEvents print_events(debounce, str);
+      // PrintEvents print_events(debounce, str);
 
       uint64_t timestamp = 0;
       debounce.onPose(nullptr, timestamp++,
@@ -159,7 +164,7 @@ void testExponentialMovingAverage() {
                       ExponentialMovingAverage::GyroscopeData,
         alpha.first);
     std::string str;
-    PrintEvents print_events(avg, str);
+    // PrintEvents print_events(avg, str);
 
     uint64_t timestamp = 0;
     for (std::size_t i = 0; i < 3; ++i) {
@@ -215,7 +220,7 @@ void testMovingAverage() {
                                     MovingAverage::GyroscopeData,
                       window_size.first);
     std::string str;
-    PrintEvents print_events(avg, str);
+    // PrintEvents print_events(avg, str);
 
     uint64_t timestamp = 0;
     for (std::size_t i = 0; i < 3; ++i) {
@@ -234,47 +239,48 @@ void testMovingAverage() {
 // Tests using MyoSimulator //
 //////////////////////////////
 
-void myoSimTestRootFeature(MyoSim::Hub& hub) {
+#if 0
+void yoSimTestRootFeature(myosim::Hub& hub) {
   features::RootFeature root_feature;
   std::string str;
-  PrintEvents print_events(root_feature, str);
+  // PrintEvents print_events(root_feature, str);
   hub.addListener(&root_feature);
 
   uint64_t timestamp = 0;
-  MyoSim::EventLoopGroup elg;
-  elg.group.push_back(std::make_shared<MyoSim::onPairEvent>(
+  myosim::EventLoopGroup elg;
+  elg.group.push_back(std::make_shared<myosim::PairEvent>(
       0, timestamp++, myo::FirmwareVersion{0, 1, 2, 3}));
-  elg.group.push_back(std::make_shared<MyoSim::onUnpairEvent>(
+  elg.group.push_back(std::make_shared<myosim::UnpairEvent>(
       0, timestamp++));
-  elg.group.push_back(std::make_shared<MyoSim::onConnectEvent>(
+  elg.group.push_back(std::make_shared<myosim::ConnectEvent>(
       0, timestamp++, myo::FirmwareVersion{0, 1, 2, 3}));
-  elg.group.push_back(std::make_shared<MyoSim::onDisconnectEvent>(
+  elg.group.push_back(std::make_shared<myosim::DisconnectEvent>(
       0, timestamp++));
-  elg.group.push_back(std::make_shared<MyoSim::onArmSyncEvent>(
+  elg.group.push_back(std::make_shared<myosim::ArmSyncEvent>(
       0, timestamp++, myo::armLeft, myo::xDirectionTowardWrist));
-  elg.group.push_back(std::make_shared<MyoSim::onArmUnsyncEvent>(
+  elg.group.push_back(std::make_shared<myosim::ArmUnsyncEvent>(
       0, timestamp++));
-  elg.group.push_back(std::make_shared<MyoSim::onUnlockEvent>(
+  elg.group.push_back(std::make_shared<myosim::UnlockEvent>(
       0, timestamp++));
-  elg.group.push_back(std::make_shared<MyoSim::onLockEvent>(
+  elg.group.push_back(std::make_shared<myosim::LockEvent>(
       0, timestamp++));
-  elg.group.push_back(std::make_shared<MyoSim::onPoseEvent>(
+  elg.group.push_back(std::make_shared<myosim::PoseEvent>(
       0, timestamp++, myo::Pose::rest));
-  elg.group.push_back(std::make_shared<MyoSim::onOrientationDataEvent>(
+  elg.group.push_back(std::make_shared<myosim::OrientationDataEvent>(
       0, timestamp++, myo::Quaternion<float>(0.f, 1.f, 2.f, 3.f)));
-  elg.group.push_back(std::make_shared<MyoSim::onAccelerometerDataEvent>(
+  elg.group.push_back(std::make_shared<myosim::AccelerometerDataEvent>(
       0, timestamp++, myo::Vector3<float>(0.f, 1.f, 2.f)));
-  elg.group.push_back(std::make_shared<MyoSim::onGyroscopeDataEvent>(
+  elg.group.push_back(std::make_shared<myosim::GyroscopeDataEvent>(
       0, timestamp++, myo::Vector3<float>(0.f, 1.f, 2.f)));
-  elg.group.push_back(std::make_shared<MyoSim::onRssiEvent>(
+  elg.group.push_back(std::make_shared<myosim::RssiEvent>(
       0, timestamp++, 123));
-  std::array<int8_t, 8> emg_data{{0, 1, 2, 3, 4, 5, 6, 7}};
-  elg.group.push_back(std::make_shared<MyoSim::onEmgDataEvent>(
+  std::array<int8_t, 8> emg_data = {0, 1, 2, 3, 4, 5, 6, 7};
+  elg.group.push_back(std::make_shared<myosim::EmgDataEvent>(
       0, timestamp++, emg_data.data()));
-  MyoSim::EventSession event_session;
+  myosim::EventSession event_session;
   event_session.events.push_back(elg);
 
-  MyoSim::EventPlayer event_player(hub);
+  myosim::EventPlayer event_player(hub);
   event_player.play(event_session);
   hub.removeListener(&root_feature);
 
@@ -295,27 +301,27 @@ void myoSimTestRootFeature(MyoSim::Hub& hub) {
          "onEmgData - myo: 0x0 timestamp: 13 emg: (0, 1, 2, 3, 4, 5, 6, 7)\n");
 }
 
-void myoSimTestDebounce(MyoSim::Hub& hub) {
+void myoSimTestDebounce(myosim::Hub& hub) {
   for (int debounce_ms : {5, 10, 100}) {
     auto test_debounce = [&hub, debounce_ms](int timestamp_offset) {
       features::RootFeature root_feature;
       features::filters::Debounce debounce(root_feature, debounce_ms);
       std::string str;
-      PrintEvents print_events(debounce, str);
+      // PrintEvents print_events(debounce, str);
       hub.addListener(&root_feature);
 
       uint64_t timestamp = 0;
-      MyoSim::EventLoopGroup elg;
-      elg.group.push_back(std::make_shared<MyoSim::onPoseEvent>(
+      myosim::EventLoopGroup elg;
+      elg.group.push_back(std::make_shared<myosim::PoseEvent>(
           0, timestamp++, myo::Pose::rest));
-      elg.group.push_back(std::make_shared<MyoSim::onPoseEvent>(
+      elg.group.push_back(std::make_shared<myosim::PoseEvent>(
           0, timestamp++, myo::Pose::fist));
-      elg.group.push_back(std::make_shared<MyoSim::onPoseEvent>(
+      elg.group.push_back(std::make_shared<myosim::PoseEvent>(
           0, timestamp++ - 1 + timestamp_offset, myo::Pose::rest));
-      MyoSim::EventSession event_session;
+      myosim::EventSession event_session;
       event_session.events.push_back(elg);
 
-      MyoSim::EventPlayer event_player(hub);
+      myosim::EventPlayer event_player(hub);
       event_player.play(event_session);
       hub.removeListener(&root_feature);
       return str;
@@ -330,7 +336,7 @@ void myoSimTestDebounce(MyoSim::Hub& hub) {
   }
 }
 
-void myoSimTestExponentialMovingAverage(MyoSim::Hub& hub) {
+void myoSimTestExponentialMovingAverage(myosim::Hub& hub) {
   using features::filters::ExponentialMovingAverage;
   std::map<float, std::string> expected_results;
   expected_results[1.f] =
@@ -372,23 +378,23 @@ void myoSimTestExponentialMovingAverage(MyoSim::Hub& hub) {
                       ExponentialMovingAverage::GyroscopeData,
         alpha.first);
     std::string str;
-    PrintEvents print_events(avg, str);
+    // PrintEvents print_events(avg, str);
     hub.addListener(&root_feature);
 
     uint64_t timestamp = 0;
-    MyoSim::EventLoopGroup elg;
+    myosim::EventLoopGroup elg;
     for (std::size_t i = 0; i < 3; ++i) {
-      elg.group.push_back(std::make_shared<MyoSim::onOrientationDataEvent>(
+      elg.group.push_back(std::make_shared<myosim::OrientationDataEvent>(
         0, timestamp++, myo::Quaternion<float>(i, i, i, i)));
-    elg.group.push_back(std::make_shared<MyoSim::onAccelerometerDataEvent>(
+    elg.group.push_back(std::make_shared<myosim::AccelerometerDataEvent>(
         0, timestamp++, myo::Vector3<float>(i, i, i)));
-    elg.group.push_back(std::make_shared<MyoSim::onGyroscopeDataEvent>(
+    elg.group.push_back(std::make_shared<myosim::GyroscopeDataEvent>(
         0, timestamp++, myo::Vector3<float>(i, i, i)));
     }
-    MyoSim::EventSession event_session;
+    myosim::EventSession event_session;
     event_session.events.push_back(elg);
 
-    MyoSim::EventPlayer event_player(hub);
+    myosim::EventPlayer event_player(hub);
     event_player.play(event_session);
     hub.removeListener(&root_feature);
 
@@ -396,7 +402,7 @@ void myoSimTestExponentialMovingAverage(MyoSim::Hub& hub) {
   }
 }
 
-void myoSimTestMovingAverage(MyoSim::Hub& hub) {
+void myoSimTestMovingAverage(myosim::Hub& hub) {
   using features::filters::MovingAverage;
   std::map<int, std::string> expected_results;
   expected_results[1] =
@@ -437,26 +443,27 @@ void myoSimTestMovingAverage(MyoSim::Hub& hub) {
                                     MovingAverage::GyroscopeData,
                       window_size.first);
     std::string str;
-    PrintEvents print_events(avg, str);
+    // PrintEvents print_events(avg, str);
     hub.addListener(&root_feature);
 
     uint64_t timestamp = 0;
-    MyoSim::EventLoopGroup elg;
+    myosim::EventLoopGroup elg;
     for (std::size_t i = 0; i < 3; ++i) {
-      elg.group.push_back(std::make_shared<MyoSim::onOrientationDataEvent>(
+      elg.group.push_back(std::make_shared<myosim::OrientationDataEvent>(
         0, timestamp++, myo::Quaternion<float>(i, i, i, i)));
-    elg.group.push_back(std::make_shared<MyoSim::onAccelerometerDataEvent>(
+    elg.group.push_back(std::make_shared<myosim::AccelerometerDataEvent>(
         0, timestamp++, myo::Vector3<float>(i, i, i)));
-    elg.group.push_back(std::make_shared<MyoSim::onGyroscopeDataEvent>(
+    elg.group.push_back(std::make_shared<myosim::GyroscopeDataEvent>(
         0, timestamp++, myo::Vector3<float>(i, i, i)));
     }
-    MyoSim::EventSession event_session;
+    myosim::EventSession event_session;
     event_session.events.push_back(elg);
 
-    MyoSim::EventPlayer event_player(hub);
+    myosim::EventPlayer event_player(hub);
     event_player.play(event_session);
     hub.removeListener(&root_feature);
 
     assert (str == window_size.second);
   }
 }
+#endif
