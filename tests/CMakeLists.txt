@@ -1,10 +1,6 @@
 enable_testing()
 include(ExternalProject)
 
-# TODO: don't hardcode these, windows sucks :/
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-
 # START ExternalProject_Add MyoSimulator
 # git clones MyoSimulator into /lib, and builds it with boost
 ExternalProject_Add(project_MyoSimulator
@@ -39,11 +35,19 @@ include_directories(${MyoSim_INCLUDE_DIR})
 link_directories(${MyoSim_LIB_DIR})
 
 # TODO: link gtest for more robust testing than assert
-# TODO: split this test up (it's huge)
-add_executable(tests tests.cpp)
-target_link_libraries(tests myosim)
-target_link_libraries(tests ${Myo_LIBRARIES})
-target_link_libraries(tests myo_intelligesture)
-target_compile_features(tests PRIVATE cxx_auto_type)
-add_test(NAME mega_test COMMAND tests)
+add_executable(myo_intelligesture_test myo_intelligesture.cpp)
+target_link_libraries(myo_intelligesture_test myosim)
+target_link_libraries(myo_intelligesture_test ${Myo_LIBRARIES})
+target_link_libraries(myo_intelligesture_test myo_intelligesture)
+target_link_libraries(myo_intelligesture_test ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_compile_features(myo_intelligesture_test PRIVATE cxx_auto_type)
+add_test(NAME myo_intelligesture_test COMMAND myo_intelligesture_test)
+
+add_executable(myo_intelligesture_myosim_test myo_intelligesture-myosim.cpp)
+target_link_libraries(myo_intelligesture_myosim_test myosim)
+target_link_libraries(myo_intelligesture_myosim_test ${Myo_LIBRARIES})
+target_link_libraries(myo_intelligesture_myosim_test myo_intelligesture)
+target_link_libraries(myo_intelligesture_myosim_test ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_compile_features(myo_intelligesture_myosim_test PRIVATE cxx_auto_type)
+add_test(NAME myo_intelligesture_myosim_test COMMAND myo_intelligesture_myosim_test)
 # END tests

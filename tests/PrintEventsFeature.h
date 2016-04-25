@@ -78,7 +78,10 @@ class PrintEvents : public core::DeviceListenerWrapper {
                          myo::FirmwareVersion firmwareVersion) override;
   virtual void onDisconnect(myo::Myo* myo, uint64_t timestamp) override;
   virtual void onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm,
-                         myo::XDirection xDirection) override;
+                         myo::XDirection xDirection, int rotation,
+                         myo::WarmupState warmup_state);
+  virtual void onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm,
+                         myo::XDirection xDirection);
   virtual void onArmUnsync(myo::Myo* myo, uint64_t timestamp) override;
   virtual void onUnlock(myo::Myo* myo, uint64_t timestamp) override;
   virtual void onLock(myo::Myo* myo, uint64_t timestamp) override;
@@ -149,6 +152,7 @@ void PrintEvents::onDisconnect(myo::Myo* myo, uint64_t timestamp) {
   out_ += ss.str();
 }
 
+
 void PrintEvents::onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm,
                             myo::XDirection xDirection) {
   std::stringstream ss;
@@ -157,6 +161,21 @@ void PrintEvents::onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm,
   ss << PRINT_NAME_AND_VAR(timestamp);
   ss << PRINT_NAME_AND_VAR(arm);
   ss << PRINT_NAME_AND_VAR(xDirection);
+  ss << "\n";
+  out_ += ss.str();
+}
+
+void PrintEvents::onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm,
+                            myo::XDirection xDirection, int rotation,
+                            myo::WarmupState warmup_state) {
+  std::stringstream ss;
+  ss << "onArmSync -";
+  ss << PRINT_NAME_AND_VAR(myo);
+  ss << PRINT_NAME_AND_VAR(timestamp);
+  ss << PRINT_NAME_AND_VAR(arm);
+  ss << PRINT_NAME_AND_VAR(xDirection);
+  ss << PRINT_NAME_AND_VAR(rotation);
+  ss << PRINT_NAME_AND_VAR(warmup_state);
   ss << "\n";
   out_ += ss.str();
 }

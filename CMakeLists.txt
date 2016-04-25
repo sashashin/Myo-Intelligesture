@@ -3,9 +3,12 @@ project(MYO_INTELLIGESTURE)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 find_package(Myo REQUIRED)
+# TODO: don't hardcode these, windows sucks :/
 # we only need the header files, no libraries to link against
 # still, it's required for a feature, and also in MyoSim
-find_package(Boost REQUIRED)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+find_package(Boost REQUIRED unit_test_framework)
 
 set(SOURCES
 	src/core/DeviceListenerWrapper.cpp
