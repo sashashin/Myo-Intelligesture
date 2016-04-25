@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.1)
-
 project(MYO_INTELLIGESTURE)
 
-# TODO: support WithSerialization for MyoSim...
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 find_package(Myo REQUIRED)
+# we only need the header files, no libraries to link against
+# still, it's required for a feature, and also in MyoSim
+find_package(Boost REQUIRED)
 
 set(SOURCES
 	src/core/DeviceListenerWrapper.cpp
@@ -30,5 +31,8 @@ set(HEADERS
 
 add_library(myo_intelligesture "${SOURCES}" "${HEADERS}")
 include_directories(${Myo_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries(myo_intelligesture ${Myo_LIBRARIES})
 target_compile_features(myo_intelligesture PRIVATE cxx_auto_type)
+
+add_subdirectory(tests)
