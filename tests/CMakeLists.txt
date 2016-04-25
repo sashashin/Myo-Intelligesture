@@ -6,7 +6,7 @@ include(ExternalProject)
 ExternalProject_Add(project_MyoSimulator
   GIT_REPOSITORY https://github.com/toshipiazza/myosim
   PREFIX ${CMAKE_SOURCE_DIR}/lib/MyoSimulator
-  # does the INSTALL_DIR not work?
+  # TODO: does the INSTALL_DIR not work?
   INSTALL_DIR ${CMAKE_SOURCE_DIR}/lib/MyoSimulator
   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR}/lib/MyoSimulator
              -DMyo_INCLUDE_DIR=${Myo_INCLUDE_DIR}
@@ -18,7 +18,7 @@ set(MyoSim_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/lib/MyoSimulator/include)
 set(MyoSim_LIB_DIR ${CMAKE_SOURCE_DIR}/lib/MyoSimulator/lib)
 add_library(myosim STATIC IMPORTED)
 if (UNIX OR APPLE)
-  # TODO: test this
+  # TODO: test this (what could go wrong?)
   set_property(TARGET myosim PROPERTY IMPORTED_LOCATION
                ${MyoSim_LIB_DIR}/libmyosim.a)
 else() # windows
@@ -34,7 +34,6 @@ include_directories(${Myo_INCLUDE_DIRS})
 include_directories(${MyoSim_INCLUDE_DIR})
 link_directories(${MyoSim_LIB_DIR})
 
-# TODO: link gtest for more robust testing than assert
 add_executable(myo_intelligesture_test myo_intelligesture.cpp)
 target_link_libraries(myo_intelligesture_test myosim)
 target_link_libraries(myo_intelligesture_test ${Myo_LIBRARIES})

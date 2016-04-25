@@ -78,11 +78,9 @@ BOOST_AUTO_TEST_CASE(myoSimTestRootFeature) {
          "onEmgData - myo: 00000000 timestamp: 13 emg: (0, 1, 2, 3, 4, 5, 6, 7)\n");
 }
 
-// TODO: this doesn't all compile
-#if 0
 BOOST_AUTO_TEST_CASE(myoSimTestDebounce) {
   for (int debounce_ms : {5, 10, 100}) {
-    auto test_debounce = [&hub, debounce_ms](int timestamp_offset) {
+    auto test_debounce = [this, debounce_ms](int timestamp_offset) {
       features::RootFeature root_feature;
       features::filters::Debounce debounce(root_feature, debounce_ms);
       std::string str;
@@ -90,18 +88,14 @@ BOOST_AUTO_TEST_CASE(myoSimTestDebounce) {
       hub.addListener(&root_feature);
 
       uint64_t timestamp = 0;
-      myosim::EventLoopGroup elg;
-      elg.group.push_back(std::make_shared<myosim::PoseEvent>(
-          0, timestamp++, myo::Pose::rest));
-      elg.group.push_back(std::make_shared<myosim::PoseEvent>(
-          0, timestamp++, myo::Pose::fist));
-      elg.group.push_back(std::make_shared<myosim::PoseEvent>(
-          0, timestamp++ - 1 + timestamp_offset, myo::Pose::rest));
-      myosim::EventSession event_session;
-      event_session.events.push_back(elg);
+      myosim::EventRecorder er(myosim::EventRecorder::ALL_EVENTS);
+      hub.addListener(&er);
+      hub.simulatePose(0, timestamp++, myo::Pose::rest);
+      hub.simulatePose(0, timestamp++, myo::Pose::fist);
+      hub.simulatePose(0, timestamp++ - 1 + timestamp_offset, myo::Pose::rest);
 
-      myosim::EventPlayer event_player(hub);
-      event_player.play(event_session);
+      myosim::EventPlayerHub eph(er.getEventQueue());
+      eph.runAll();
       hub.removeListener(&root_feature);
       return str;
     };
@@ -161,20 +155,15 @@ BOOST_AUTO_TEST_CASE(myoSimTestExponentialMovingAverage) {
     hub.addListener(&root_feature);
 
     uint64_t timestamp = 0;
-    myosim::EventLoopGroup elg;
+    myosim::EventRecorder er(myosim::EventRecorder::ALL_EVENTS);
     for (std::size_t i = 0; i < 3; ++i) {
-      elg.group.push_back(std::make_shared<myosim::OrientationDataEvent>(
-        0, timestamp++, myo::Quaternion<float>(i, i, i, i)));
-    elg.group.push_back(std::make_shared<myosim::AccelerometerDataEvent>(
-        0, timestamp++, myo::Vector3<float>(i, i, i)));
-    elg.group.push_back(std::make_shared<myosim::GyroscopeDataEvent>(
-        0, timestamp++, myo::Vector3<float>(i, i, i)));
+      float j = (float) i;
+      hub.simulateOrientationData(0, timestamp++, myo::Quaternion<float>(j, j, j, j));
+      hub.simulateAccelerometerData(0, timestamp++, myo::Vector3<float>(j, j, j));
+      hub.simulateGyroscopeData(0, timestamp++, myo::Vector3<float>(j, j, j));
     }
-    myosim::EventSession event_session;
-    event_session.events.push_back(elg);
-
-    myosim::EventPlayer event_player(hub);
-    event_player.play(event_session);
+    myosim::EventPlayerHub eph(er.getEventQueue());
+    eph.runAll();
     hub.removeListener(&root_feature);
 
     BOOST_CHECK_EQUAL(str, alpha.second);
@@ -226,25 +215,19 @@ BOOST_AUTO_TEST_CASE(myoSimTestMovingAverage) {
     hub.addListener(&root_feature);
 
     uint64_t timestamp = 0;
-    myosim::EventLoopGroup elg;
+    myosim::EventRecorder er(myosim::EventRecorder::ALL_EVENTS);
     for (std::size_t i = 0; i < 3; ++i) {
-      elg.group.push_back(std::make_shared<myosim::OrientationDataEvent>(
-        0, timestamp++, myo::Quaternion<float>(i, i, i, i)));
-    elg.group.push_back(std::make_shared<myosim::AccelerometerDataEvent>(
-        0, timestamp++, myo::Vector3<float>(i, i, i)));
-    elg.group.push_back(std::make_shared<myosim::GyroscopeDataEvent>(
-        0, timestamp++, myo::Vector3<float>(i, i, i)));
+      float j = (float) i;
+      hub.simulateOrientationData(0, timestamp++, myo::Quaternion<float>(j, j, j, j));
+      hub.simulateAccelerometerData(0, timestamp++, myo::Vector3<float>(j, j, j));
+      hub.simulateGyroscopeData(0, timestamp++, myo::Vector3<float>(j, j, j));
     }
-    myosim::EventSession event_session;
-    event_session.events.push_back(elg);
-
-    myosim::EventPlayer event_player(hub);
-    event_player.play(event_session);
+    myosim::EventPlayerHub eph(er.getEventQueue());
+    eph.runAll();
     hub.removeListener(&root_feature);
 
     BOOST_CHECK_EQUAL(str, window_size.second);
   }
 }
-#endif
 
 BOOST_AUTO_TEST_SUITE_END()
