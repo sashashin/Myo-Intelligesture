@@ -33,7 +33,8 @@ class DeviceListenerWrapper {
   virtual void onDisconnect(myo::Myo* myo, uint64_t timestamp);
 
   virtual void onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm,
-                         myo::XDirection x_direction);
+                         myo::XDirection x_direction,
+                         float rotation, myo::WarmupState warmupState);
 
   virtual void onArmUnsync(myo::Myo* myo, uint64_t timestamp);
 

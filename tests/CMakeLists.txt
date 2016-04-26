@@ -1,4 +1,3 @@
-enable_testing()
 include(ExternalProject)
 
 # START ExternalProject_Add MyoSimulator
@@ -34,17 +33,17 @@ include_directories(${Myo_INCLUDE_DIRS})
 include_directories(${MyoSim_INCLUDE_DIR})
 link_directories(${MyoSim_LIB_DIR})
 
-add_executable(myo_intelligesture_test myo_intelligesture.cpp)
+add_executable(myo_intelligesture_test myo_intelligesture.cpp PrintEventsFeature.h)
 target_link_libraries(myo_intelligesture_test myosim)
-target_link_libraries(myo_intelligesture_test ${Myo_LIBRARIES})
+target_link_libraries(myo_intelligesture_test ${Myo_LIBRARY})
 target_link_libraries(myo_intelligesture_test myo_intelligesture)
 target_link_libraries(myo_intelligesture_test ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 target_compile_features(myo_intelligesture_test PRIVATE cxx_auto_type)
 add_test(NAME myo_intelligesture_test COMMAND myo_intelligesture_test)
 
-add_executable(myo_intelligesture_myosim_test myo_intelligesture-myosim.cpp)
+add_executable(myo_intelligesture_myosim_test myo_intelligesture-myosim.cpp PrintEventsFeature.h)
 target_link_libraries(myo_intelligesture_myosim_test myosim)
-target_link_libraries(myo_intelligesture_myosim_test ${Myo_LIBRARIES})
+target_link_libraries(myo_intelligesture_myosim_test ${Myo_LIBRARY})
 target_link_libraries(myo_intelligesture_myosim_test myo_intelligesture)
 target_link_libraries(myo_intelligesture_myosim_test ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 target_compile_features(myo_intelligesture_myosim_test PRIVATE cxx_auto_type)

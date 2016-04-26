@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(testRootFeature) {
   root_feature.onUnpair(nullptr, timestamp++);
   root_feature.onConnect(nullptr, timestamp++, myo::FirmwareVersion{0, 1, 2, 3});
   root_feature.onDisconnect(nullptr, timestamp++);
-  root_feature.onArmSync(nullptr, timestamp++, myo::armLeft, myo::xDirectionTowardWrist);
+  root_feature.onArmSync(nullptr, timestamp++, myo::armLeft, myo::xDirectionTowardWrist, 0, myo::warmupStateCold);
   root_feature.onArmUnsync(nullptr, timestamp++);
   root_feature.onUnlock(nullptr, timestamp++);
   root_feature.onLock(nullptr, timestamp++);
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(testRootFeature) {
          "onUnpair - myo: 00000000 timestamp: 1\n"
          "onConnect - myo: 00000000 timestamp: 2 firmwareVersion: (0, 1, 2, 3)\n"
          "onDisconnect - myo: 00000000 timestamp: 3\n"
-         "onArmSync - myo: 00000000 timestamp: 4 arm: armLeft xDirection: xDirectionTowardWrist\n"
+		 "onArmSync - myo: 00000000 timestamp: 4 arm: armLeft xDirection: xDirectionTowardWrist rotation: 0 warmupState: 1\n"
          "onArmUnsync - myo: 00000000 timestamp: 5\n"
          "onUnlock - myo: 00000000 timestamp: 6\n"
          "onLock - myo: 00000000 timestamp: 7\n"

@@ -36,9 +36,10 @@ void DeviceListenerWrapper::onDisconnect(myo::Myo* myo, uint64_t timestamp) {
 }
 
 void DeviceListenerWrapper::onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm,
-                       myo::XDirection x_direction) {
+                       myo::XDirection x_direction,
+                       float rotation, myo::WarmupState warmupState) {
   for (auto feature : child_features_) {
-    feature->onArmSync(myo, timestamp, arm, x_direction);
+    feature->onArmSync(myo, timestamp, arm, x_direction, rotation, warmupState);
   }
 }
 

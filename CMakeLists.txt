@@ -38,4 +38,5 @@ include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries(myo_intelligesture ${Myo_LIBRARIES})
 target_compile_features(myo_intelligesture PRIVATE cxx_auto_type)
 
+enable_testing()
 add_subdirectory(tests)

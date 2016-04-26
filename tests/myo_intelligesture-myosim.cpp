@@ -39,13 +39,11 @@ BOOST_AUTO_TEST_CASE(myoSimTestRootFeature) {
   hub.addListener(&root_feature);
 
   uint64_t timestamp = 0;
-  myosim::EventRecorder er(myosim::EventRecorder::ALL_EVENTS);
-  hub.addListener(&er);
   hub.simulatePair(nullptr, timestamp++, myo::FirmwareVersion{0, 1, 2, 3});
   hub.simulateUnpair(nullptr, timestamp++);
   hub.simulateConnect(nullptr, timestamp++, myo::FirmwareVersion{0, 1, 2, 3});
   hub.simulateDisconnect(nullptr, timestamp++);
-  hub.simulateArmSync(nullptr, timestamp++, myo::armLeft, myo::xDirectionTowardWrist, 0, myo::warmupStateCold );
+  hub.simulateArmSync(nullptr, timestamp++, myo::armLeft, myo::xDirectionTowardWrist, 0, myo::warmupStateCold);
   hub.simulateArmUnsync(nullptr, timestamp++);
   hub.simulateUnlock(nullptr, timestamp++);
   hub.simulateLock(nullptr, timestamp++);
@@ -56,9 +54,6 @@ BOOST_AUTO_TEST_CASE(myoSimTestRootFeature) {
   hub.simulateRssi(nullptr, timestamp++, 123);
   std::array<int8_t, 8> emg_data = {0, 1, 2, 3, 4, 5, 6, 7};
   hub.simulateEmgData(nullptr, timestamp++, emg_data.data());
-
-  myosim::EventPlayerHub eph(er.getEventQueue());
-  eph.runAll();
   hub.removeListener(&root_feature);
 
   BOOST_CHECK_EQUAL(str,
@@ -66,7 +61,7 @@ BOOST_AUTO_TEST_CASE(myoSimTestRootFeature) {
          "onUnpair - myo: 00000000 timestamp: 1\n"
          "onConnect - myo: 00000000 timestamp: 2 firmwareVersion: (0, 1, 2, 3)\n"
          "onDisconnect - myo: 00000000 timestamp: 3\n"
-         "onArmSync - myo: 00000000 timestamp: 4 arm: armLeft xDirection: xDirectionTowardWrist\n"
+         "onArmSync - myo: 00000000 timestamp: 4 arm: armLeft xDirection: xDirectionTowardWrist rotation: 0 warmupState: 1\n"
          "onArmUnsync - myo: 00000000 timestamp: 5\n"
          "onUnlock - myo: 00000000 timestamp: 6\n"
          "onLock - myo: 00000000 timestamp: 7\n"
@@ -88,14 +83,9 @@ BOOST_AUTO_TEST_CASE(myoSimTestDebounce) {
       hub.addListener(&root_feature);
 
       uint64_t timestamp = 0;
-      myosim::EventRecorder er(myosim::EventRecorder::ALL_EVENTS);
-      hub.addListener(&er);
       hub.simulatePose(0, timestamp++, myo::Pose::rest);
       hub.simulatePose(0, timestamp++, myo::Pose::fist);
       hub.simulatePose(0, timestamp++ - 1 + timestamp_offset, myo::Pose::rest);
-
-      myosim::EventPlayerHub eph(er.getEventQueue());
-      eph.runAll();
       hub.removeListener(&root_feature);
       return str;
     };
@@ -155,15 +145,12 @@ BOOST_AUTO_TEST_CASE(myoSimTestExponentialMovingAverage) {
     hub.addListener(&root_feature);
 
     uint64_t timestamp = 0;
-    myosim::EventRecorder er(myosim::EventRecorder::ALL_EVENTS);
     for (std::size_t i = 0; i < 3; ++i) {
       float j = (float) i;
       hub.simulateOrientationData(0, timestamp++, myo::Quaternion<float>(j, j, j, j));
       hub.simulateAccelerometerData(0, timestamp++, myo::Vector3<float>(j, j, j));
       hub.simulateGyroscopeData(0, timestamp++, myo::Vector3<float>(j, j, j));
     }
-    myosim::EventPlayerHub eph(er.getEventQueue());
-    eph.runAll();
     hub.removeListener(&root_feature);
 
     BOOST_CHECK_EQUAL(str, alpha.second);
@@ -215,15 +202,12 @@ BOOST_AUTO_TEST_CASE(myoSimTestMovingAverage) {
     hub.addListener(&root_feature);
 
     uint64_t timestamp = 0;
-    myosim::EventRecorder er(myosim::EventRecorder::ALL_EVENTS);
     for (std::size_t i = 0; i < 3; ++i) {
       float j = (float) i;
       hub.simulateOrientationData(0, timestamp++, myo::Quaternion<float>(j, j, j, j));
       hub.simulateAccelerometerData(0, timestamp++, myo::Vector3<float>(j, j, j));
       hub.simulateGyroscopeData(0, timestamp++, myo::Vector3<float>(j, j, j));
     }
-    myosim::EventPlayerHub eph(er.getEventQueue());
-    eph.runAll();
     hub.removeListener(&root_feature);
 
     BOOST_CHECK_EQUAL(str, window_size.second);
