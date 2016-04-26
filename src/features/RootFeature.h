@@ -24,8 +24,9 @@ class RootFeature : public myo::DeviceListener,
     core::DeviceListenerWrapper::onDisconnect(myo, timestamp);
   }
   virtual void onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm,
-                         myo::XDirection x_direction) override {
-    core::DeviceListenerWrapper::onArmSync(myo, timestamp, arm, x_direction);
+                         myo::XDirection x_direction,
+                         float rotation, myo::WarmupState warmupState) override {
+    core::DeviceListenerWrapper::onArmSync(myo, timestamp, arm, x_direction, rotation, warmupState);
   }
   virtual void onArmUnsync(myo::Myo* myo, uint64_t timestamp) override {
     core::DeviceListenerWrapper::onArmUnsync(myo, timestamp);

@@ -78,7 +78,8 @@ class PrintEvents : public core::DeviceListenerWrapper {
                          myo::FirmwareVersion firmwareVersion) override;
   virtual void onDisconnect(myo::Myo* myo, uint64_t timestamp) override;
   virtual void onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm,
-                         myo::XDirection xDirection) override;
+                         myo::XDirection xDirection, float rotation,
+                         myo::WarmupState warmupState);
   virtual void onArmUnsync(myo::Myo* myo, uint64_t timestamp) override;
   virtual void onUnlock(myo::Myo* myo, uint64_t timestamp) override;
   virtual void onLock(myo::Myo* myo, uint64_t timestamp) override;
@@ -150,13 +151,16 @@ void PrintEvents::onDisconnect(myo::Myo* myo, uint64_t timestamp) {
 }
 
 void PrintEvents::onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm,
-                            myo::XDirection xDirection) {
+                            myo::XDirection xDirection, float rotation,
+                            myo::WarmupState warmupState) {
   std::stringstream ss;
   ss << "onArmSync -";
   ss << PRINT_NAME_AND_VAR(myo);
   ss << PRINT_NAME_AND_VAR(timestamp);
   ss << PRINT_NAME_AND_VAR(arm);
   ss << PRINT_NAME_AND_VAR(xDirection);
+  ss << PRINT_NAME_AND_VAR(rotation);
+  ss << PRINT_NAME_AND_VAR(warmupState);
   ss << "\n";
   out_ += ss.str();
 }
@@ -194,7 +198,7 @@ void PrintEvents::onPose(myo::Myo* myo, uint64_t timestamp,
   ss << "onPose -";
   ss << PRINT_NAME_AND_VAR(myo);
   ss << PRINT_NAME_AND_VAR(timestamp);
-  ss << PRINT_NAME_AND_VAR(*pose);
+  ss << PRINT_NAME_AND_VAR(pose->toString());
   ss << "\n";
   out_ += ss.str();
 }
@@ -205,7 +209,7 @@ void PrintEvents::onGesture(myo::Myo* myo, uint64_t timestamp,
   ss << "onGesture -";
   ss << PRINT_NAME_AND_VAR(myo);
   ss << PRINT_NAME_AND_VAR(timestamp);
-  ss << PRINT_NAME_AND_VAR(*gesture);
+  ss << PRINT_NAME_AND_VAR(gesture->toString());
   ss << "\n";
   out_ += ss.str();
 }
