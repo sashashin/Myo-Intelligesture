@@ -10,7 +10,8 @@
 
 #include "../../core/DeviceListenerWrapper.h"
 #include "../../core/Pose.h"
-#include "../../../lib/Basic-Timer/BasicTimer.h"
+#include <ctime>
+#include <chrono>
 
 namespace features {
 namespace filters {
@@ -27,7 +28,7 @@ class Debounce : public core::DeviceListenerWrapper {
 
   int timeout_ms_;
   std::shared_ptr<core::Pose> last_pose_, last_debounced_pose_;
-  BasicTimer last_pose_time_;
+  std::chrono::time_point<std::chrono::system_clock> last_post_time_;
   uint64_t last_pose_timestamp_;
 };
 
@@ -37,7 +38,7 @@ Debounce::Debounce(core::DeviceListenerWrapper& parent_feature, int timeout_ms)
       last_debounced_pose_(last_pose_),
       last_pose_timestamp_(0) {
   parent_feature.addChildFeature(this);
-  last_pose_time_.tick();
+  last_post_time_ = std::chrono::system_clock::now();
 }
 
 void Debounce::onPose(myo::Myo* myo, uint64_t timestamp,
@@ -47,7 +48,7 @@ void Debounce::onPose(myo::Myo* myo, uint64_t timestamp,
     debounceLastPose(myo);
   }
   last_pose_ = pose;
-  last_pose_time_.tick();
+  last_pose_time_ = std::chrono::system_clock::now();
   last_pose_timestamp_ = timestamp;
   // Don't debounce doubleTaps because of their uniqely short duration.
   if (*last_pose_ == core::Pose::doubleTap) {
@@ -66,7 +67,7 @@ void Debounce::onPeriodic(myo::Myo* myo) {
 
 void Debounce::debounceLastPose(myo::Myo* myo) {
   last_debounced_pose_ = last_pose_;
-  last_pose_time_.tick();
+  last_post_time_ = std::chrono::system_clock::now();
   core::DeviceListenerWrapper::onPose(myo, last_pose_timestamp_, last_pose_);
 }
 }

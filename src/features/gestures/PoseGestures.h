@@ -10,7 +10,8 @@
 
 #include "../../core/DeviceListenerWrapper.h"
 #include "../../core/Gesture.h"
-#include "../../../lib/Basic-Timer/BasicTimer.h"
+#include <ctime>
+#include <chrono>
 
 namespace features {
 namespace gestures {
@@ -38,7 +39,8 @@ class PoseGestures : public core::DeviceListenerWrapper {
 
  private:
   const int click_max_hold_min_, double_click_timeout_;
-  std::unordered_map<std::string, BasicTimer> gesture_timers_;
+//   std::unordered_map<std::string, BasicTimer> gesture_timers_;
+  std::unordered_map<std::string, std::chrono::system_clock::time_point current_time> gesture_timers_;
   std::shared_ptr<Gesture> last_gesture_;
 };
 
@@ -83,29 +85,22 @@ PoseGestures::PoseGestures(core::DeviceListenerWrapper& parent_feature,
 
 void PoseGestures::onPose(myo::Myo* myo, uint64_t timestamp,
                           const std::shared_ptr<core::Pose>& pose) {
-  BasicTimer now;
-  now.tick();
 
-  if (gesture_timers_.count(last_gesture_->toDescriptiveString()) > 0 &&
-      gesture_timers_[last_gesture_->toDescriptiveString()]
-              .millisecondsSinceTick() <= click_max_hold_min_) {
+  std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+
+  if (gesture_timers_.count(last_gesture_->toDescriptiveString()) > 0
+    && gesture_timers_[last_gesture_->toDescriptiveString()].millisecondsSinceTick() <= click_max_hold_min_) {
     std::shared_ptr<core::Gesture> current_gesture;
-    if (gesture_timers_.count(
-            Gesture(last_gesture_->AssociatedPose(), Gesture::singleClick)
-                .toDescriptiveString()) > 0 &&
-        millisecondsBetweenTicks(
-            gesture_timers_[Gesture(last_gesture_->AssociatedPose(),
-                                    Gesture::singleClick)
-                                .toDescriptiveString()],
+    if (gesture_timers_.count(Gesture(last_gesture_->AssociatedPose(), Gesture::singleClick).toDescriptiveString()) > 0
+        && millisecondsBetweenTicks(gesture_timers_[Gesture(last_gesture_->AssociatedPose(), Gesture::singleClick).toDescriptiveString()],
             gesture_timers_[last_gesture_->toDescriptiveString()]) <=
             double_click_timeout_) {
       // Double click. Suppress the current single click.
-      current_gesture.reset(
-          new Gesture(last_gesture_->AssociatedPose(), Gesture::doubleClick));
-    } else {
+      current_gesture.reset(new Gesture(last_gesture_->AssociatedPose(), Gesture::doubleClick));
+    }
+    else {
       // Single click.
-      current_gesture.reset(
-          new Gesture(last_gesture_->AssociatedPose(), Gesture::singleClick));
+      current_gesture.reset(new Gesture(last_gesture_->AssociatedPose(), Gesture::singleClick));
     }
     gesture_timers_[current_gesture->toDescriptiveString()] = now;
     core::DeviceListenerWrapper::onGesture(myo, timestamp, current_gesture);
@@ -117,11 +112,9 @@ void PoseGestures::onPose(myo::Myo* myo, uint64_t timestamp,
 }
 
 void PoseGestures::onPeriodic(myo::Myo* myo) {
-  if (*last_gesture_ != Gesture(Gesture::hold) &&
-      gesture_timers_.count(Gesture(last_gesture_->AssociatedPose(),
-                                    Gesture::none).toDescriptiveString()) > 0 &&
-      gesture_timers_[Gesture(last_gesture_->AssociatedPose(), Gesture::none)
-                          .toDescriptiveString()].millisecondsSinceTick() >
+  if (*last_gesture_ != Gesture(Gesture::hold)
+    && gesture_timers_.count(Gesture(last_gesture_->AssociatedPose(), Gesture::none).toDescriptiveString()) > 0
+    && gesture_timers_[Gesture(last_gesture_->AssociatedPose(), Gesture::none).toDescriptiveString()].millisecondsSinceTick() >
           click_max_hold_min_) {
     last_gesture_.reset(new Gesture(last_gesture_->AssociatedPose(), Gesture::hold));
     core::DeviceListenerWrapper::onGesture(myo, 0, last_gesture_);
