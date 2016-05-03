@@ -28,7 +28,7 @@ class Debounce : public core::DeviceListenerWrapper {
 
   int timeout_ms_;
   std::shared_ptr<core::Pose> last_pose_, last_debounced_pose_;
-  std::chrono::time_point<std::chrono::system_clock> last_post_time_;
+  std::chrono::time_point<std::chrono::system_clock> last_pose_time_;
   uint64_t last_pose_timestamp_;
 };
 
@@ -38,7 +38,7 @@ Debounce::Debounce(core::DeviceListenerWrapper& parent_feature, int timeout_ms)
       last_debounced_pose_(last_pose_),
       last_pose_timestamp_(0) {
   parent_feature.addChildFeature(this);
-  last_post_time_ = std::chrono::system_clock::now();
+  last_pose_time_ = std::chrono::system_clock::now();
 }
 
 void Debounce::onPose(myo::Myo* myo, uint64_t timestamp,
@@ -58,7 +58,7 @@ void Debounce::onPose(myo::Myo* myo, uint64_t timestamp,
 }
 
 void Debounce::onPeriodic(myo::Myo* myo) {
-  if (last_pose_time_.millisecondsSinceTick() > timeout_ms_ &&
+  if (std::chrono::duration_cast<std::chrono::milliseconds>(last_pose_time_ - std::chrono::system_clock::now()).count() > timeout_ms_ &&
       *last_pose_ != *last_debounced_pose_) {
     debounceLastPose(myo);
   }
@@ -67,7 +67,7 @@ void Debounce::onPeriodic(myo::Myo* myo) {
 
 void Debounce::debounceLastPose(myo::Myo* myo) {
   last_debounced_pose_ = last_pose_;
-  last_post_time_ = std::chrono::system_clock::now();
+  last_pose_time_ = std::chrono::system_clock::now();
   core::DeviceListenerWrapper::onPose(myo, last_pose_timestamp_, last_pose_);
 }
 }
